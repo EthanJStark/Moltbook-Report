@@ -1,7 +1,6 @@
 import { writeFile, mkdir } from 'fs/promises';
 import { dirname } from 'path';
 import type { MoltbookClient } from '../api/client.js';
-import type { Post } from '../schema/moltbook.js';
 
 export interface ScrapeOptions {
   client: MoltbookClient;
