@@ -10,8 +10,8 @@ interface WhisperXSegment {
   text: string;
   start: number;
   end: number;
+  speaker: string;
   words: Array<{ word: string; start: number; end: number; score: number }>;
-  // Note: No speaker field - WhisperX output without diarization
 }
 
 interface WhisperXOutput {
@@ -26,10 +26,9 @@ function main() {
 
   console.log(`Found ${transcriptData.segments.length} segments`);
 
-  // Convert to TranscriptSegment format
-  // Assign all segments to SPEAKER_00 since no diarization available
+  // Convert to TranscriptSegment format using speaker diarization from WhisperX
   const segments: TranscriptSegment[] = transcriptData.segments.map((seg) => ({
-    speaker: 'SPEAKER_00', // Use single speaker (no diarization in source)
+    speaker: seg.speaker,
     text: seg.text.trim(),
     start: seg.start,
     end: seg.end,
