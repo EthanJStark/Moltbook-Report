@@ -1,0 +1,12 @@
+{
+  "sources": [
+    {
+      "id": "reddit-community-discussions",
+      "type": "reddit",
+      "path": "reddit/moltbook-discussions.md",
+      "dateAdded": "2026-02-01",
+      "themes": ["security", "authenticity", "hype"],
+      "usedInEpisodes": [2]
+    }
+  ]
+}
