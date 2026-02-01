@@ -41,6 +41,55 @@ moltbook-report -o ./reports --max-comments 15 --max-depth 4
 
 Output file: `<output>/moltbook-YYYY-MM-DD.md`
 
+### Episode 2 Workflow: Thematic Filtering
+
+For thematic podcast episodes, use the scrape → filter workflow:
+
+#### Step 1: Scrape Posts
+
+```bash
+npx moltbook-report scrape --limit 250 --output episodes/002/raw/scraped-posts.json -v
+```
+
+This saves raw API responses to JSON for subsequent filtering.
+
+#### Step 2: Filter by Theme
+
+```bash
+# Security theme
+npx moltbook-report filter --theme security \
+  --input episodes/002/raw/scraped-posts.json \
+  --output episodes/002/raw/filtered-security.json \
+  --limit 10 -v
+
+# Identity theme
+npx moltbook-report filter --theme identity \
+  --input episodes/002/raw/scraped-posts.json \
+  --output episodes/002/raw/filtered-identity.json \
+  --limit 10 -v
+```
+
+The filter command:
+- Matches keywords in post title and content (case-insensitive)
+- Ranks by relevance score (keyword density + upvotes)
+- Detects overlap with previous episodes
+- Warns if overlap exceeds 20%
+
+#### Available Themes
+
+- **security**: Database leaks, API keys, hacking, vulnerabilities
+- **identity**: Human vs bot, authenticity, infiltration, verification
+
+#### Overlap Detection
+
+The filter command automatically checks for posts used in previous episodes:
+
+- **< 20% overlap**: Proceeds without warning
+- **20-40% overlap**: Warning displayed, review recommended
+- **> 40% overlap**: Error message, too much repetition
+
+To intentionally reuse a post, proceed despite the warning.
+
 ### Library
 
 ```typescript

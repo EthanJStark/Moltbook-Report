@@ -124,6 +124,67 @@ The tool functions as both:
 
 When adding features, consider both use cases. CLI should provide sensible defaults and clear progress output (when `-v` is enabled). Library exports should be minimal and well-typed.
 
+## Episode 2: Thematic Filtering
+
+Episode 2 uses a three-tier source model:
+
+1. **Global raw** (`sources/`, `output/`) - Unprocessed input, reusable across episodes
+2. **Episode raw** (`episodes/00X/raw/`) - Filtered/intermediate data for this episode
+3. **Episode curated** (`episodes/00X/notebooklm/`) - Final NotebookLM-ready documents
+
+### Directory Structure
+
+```
+sources/
+├── reddit/
+│   └── moltbook-discussions.md    # External source materials
+└── sources.json                   # Registry of sources
+
+episodes/
+└── 002/
+    ├── metadata.json
+    ├── raw/
+    │   ├── scraped-posts.json     # Raw API response
+    │   ├── filtered-security.json # Theme-filtered posts
+    │   └── filtered-identity.json
+    └── notebooklm/
+        ├── theme-security.md      # Curated final documents
+        ├── theme-identity.md
+        └── [context files]
+```
+
+### CLI Workflow
+
+```bash
+# 1. Scrape posts
+npx moltbook-report scrape --limit 250 --output episodes/002/raw/scraped-posts.json
+
+# 2. Filter by themes
+npx moltbook-report filter --theme security --input episodes/002/raw/scraped-posts.json
+npx moltbook-report filter --theme identity --input episodes/002/raw/scraped-posts.json
+
+# 3. Review filtered results
+# 4. Manually curate theme documents in notebooklm/
+```
+
+### Keyword Matching
+
+Themes are defined in `src/filter/keywords.ts`:
+
+- **Security**: security, leak, database, api, key, hack, exploit, vulnerability, breach, expose, password, token, compromise
+- **Identity**: human, bot, infiltrate, real, fake, verify, authentic, imposter, pretend, prove, identity, flesh, organic, silicon
+
+Matching is case-insensitive and searches both title and content.
+
+### Overlap Awareness
+
+The filter command checks previous episodes for duplicate posts:
+- Tags posts with `previouslyCovered: ['001']` array
+- Calculates overlap percentage
+- Warns or blocks based on thresholds (20%, 40%)
+
+This allows intentional reuse while preventing excessive repetition.
+
 ## Code Style Notes
 
 - **No explicit `any`**: ESLint warns on `@typescript-eslint/no-explicit-any`
