@@ -15,18 +15,21 @@ describe('scrapeCommand', () => {
 
   it('scrapes posts and saves to JSON file', async () => {
     const mockClient = {
-      getPosts: vi.fn().mockResolvedValue([
-        {
-          id: 'post1',
-          title: 'Test Post',
-          content: 'Content',
-          author: { name: 'Bot', id: '1', karma: 100, follower_count: 50 },
-          upvotes: 50,
-          comment_count: 10,
-          created_at: '2026-01-28T10:00:00Z',
-          url: 'https://moltbook.com/post/post1'
-        }
-      ])
+      getPosts: vi.fn().mockResolvedValue({
+        posts: [
+          {
+            id: 'post1',
+            title: 'Test Post',
+            content: 'Content',
+            author: { name: 'Bot', id: '1', karma: 100, follower_count: 50 },
+            upvotes: 50,
+            comment_count: 10,
+            created_at: '2026-01-28T10:00:00Z',
+            url: 'https://moltbook.com/post/post1'
+          }
+        ],
+        nextOffset: 50
+      })
     } as unknown as MoltbookClient;
 
     await scrapeCommand({
@@ -36,7 +39,8 @@ describe('scrapeCommand', () => {
       verbose: false
     });
 
-    expect(mockClient.getPosts).toHaveBeenCalledWith('both', 50, 0);
+    expect(mockClient.getPosts).toHaveBeenCalledWith('hot', 50, 0);
+    expect(mockClient.getPosts).toHaveBeenCalledWith('top', 50, 0);
     expect(writeFile).toHaveBeenCalledWith(
       'test-output.json',
       expect.stringContaining('"id": "post1"'),
@@ -46,7 +50,10 @@ describe('scrapeCommand', () => {
 
   it('creates output directory if needed', async () => {
     const mockClient = {
-      getPosts: vi.fn().mockResolvedValue([])
+      getPosts: vi.fn().mockResolvedValue({
+        posts: [],
+        nextOffset: 0
+      })
     } as unknown as MoltbookClient;
 
     await scrapeCommand({
@@ -61,7 +68,10 @@ describe('scrapeCommand', () => {
 
   it('respects limit parameter', async () => {
     const mockClient = {
-      getPosts: vi.fn().mockResolvedValue([])
+      getPosts: vi.fn().mockResolvedValue({
+        posts: [],
+        nextOffset: 0
+      })
     } as unknown as MoltbookClient;
 
     await scrapeCommand({
@@ -71,6 +81,7 @@ describe('scrapeCommand', () => {
       verbose: false
     });
 
-    expect(mockClient.getPosts).toHaveBeenCalledWith('both', 250, 0);
+    expect(mockClient.getPosts).toHaveBeenCalledWith('hot', 250, 0);
+    expect(mockClient.getPosts).toHaveBeenCalledWith('top', 250, 0);
   });
 });

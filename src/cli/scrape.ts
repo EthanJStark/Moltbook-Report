@@ -1,6 +1,7 @@
 import { writeFile, mkdir } from 'fs/promises';
 import { dirname } from 'path';
 import type { MoltbookClient } from '../api/client.js';
+import type { Post } from '../schema/moltbook.js';
 
 export interface ScrapeOptions {
   client: MoltbookClient;
@@ -16,11 +17,26 @@ export async function scrapeCommand(options: ScrapeOptions): Promise<void> {
     console.log(`Scraping ${limit} posts from Moltbook...`);
   }
 
-  // Fetch posts
-  const posts = await client.getPosts('both', limit, 0);
+  // Fetch from both hot and top feeds, then deduplicate
+  const hotResponse = await client.getPosts('hot', limit, 0);
+  const topResponse = await client.getPosts('top', limit, 0);
+
+  // Deduplicate by post ID
+  const seenIds = new Set<string>();
+  const posts = [];
+
+  for (const post of [...hotResponse.posts, ...topResponse.posts]) {
+    if (!seenIds.has(post.id)) {
+      seenIds.add(post.id);
+      posts.push(post);
+    }
+  }
+
+  // Take only up to limit posts
+  const finalPosts = posts.slice(0, limit);
 
   if (verbose) {
-    console.log(`Fetched ${posts.length} posts`);
+    console.log(`Fetched ${finalPosts.length} posts (${hotResponse.posts.length} hot, ${topResponse.posts.length} top, deduplicated)`);
   }
 
   // Create output directory if needed
@@ -28,7 +44,7 @@ export async function scrapeCommand(options: ScrapeOptions): Promise<void> {
   await mkdir(outputDir, { recursive: true });
 
   // Write to JSON file
-  const jsonContent = JSON.stringify({ posts }, null, 2);
+  const jsonContent = JSON.stringify({ posts: finalPosts }, null, 2);
   await writeFile(output, jsonContent, 'utf-8');
 
   if (verbose) {

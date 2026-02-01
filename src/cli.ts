@@ -6,6 +6,7 @@ import { format } from 'date-fns';
 import { scrapeDaily } from './scraper/daily.js';
 import { generateReport } from './report/markdown.js';
 import { scrapeCommand } from './cli/scrape.js';
+import { filterCommand } from './cli/filter.js';
 import { MoltbookClient } from './api/client.js';
 import {
   createEpisode,
@@ -98,6 +99,36 @@ program
     });
 
     console.log(`✓ Scraped ${limit} posts to ${options.output}`);
+  });
+
+// Filter command
+program
+  .command('filter')
+  .description('Filter scraped posts by theme keywords')
+  .requiredOption('--theme <name>', 'Theme name (security, identity)')
+  .requiredOption('--input <path>', 'Input JSON file from scrape command')
+  .option('--output <path>', 'Output file path (default: filtered-{theme}.json)')
+  .option('--limit <number>', 'Maximum number of posts to return', '10')
+  .option('-v, --verbose', 'Verbose output', false)
+  .action(async (options) => {
+    const theme = options.theme as 'security' | 'identity';
+    const output = options.output || `filtered-${theme}.json`;
+    const limit = parseInt(options.limit, 10);
+
+    if (!['security', 'identity'].includes(theme)) {
+      console.error('Error: theme must be "security" or "identity"');
+      process.exit(1);
+    }
+
+    await filterCommand({
+      theme,
+      input: options.input,
+      output,
+      limit,
+      verbose: options.verbose
+    });
+
+    console.log(`✓ Filtered ${limit} posts to ${output}`);
   });
 
 // Episode subcommand group
