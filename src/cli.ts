@@ -1,15 +1,34 @@
 #!/usr/bin/env node
 import { program } from 'commander';
 import { writeFileSync, mkdirSync, existsSync } from 'fs';
-import { join } from 'path';
+import { join, resolve } from 'path';
 import { format } from 'date-fns';
 import { scrapeDaily } from './scraper/daily.js';
 import { generateReport } from './report/markdown.js';
+import {
+  createEpisode,
+  confirmEpisode,
+  deleteEpisode,
+  transcribeEpisode,
+  publishEpisode,
+  getEpisodeStatus,
+  getAllEpisodesStatus,
+  formatStatusOutput,
+  formatEpisodeNumber,
+} from './episode/index.js';
+
+// Helper to get project root (where package.json is)
+function getProjectRoot(): string {
+  return process.cwd();
+}
 
 program
   .name('moltbook-report')
   .description('Generate NotebookLM-friendly reports from Moltbook')
-  .version('1.0.0')
+  .version('1.0.0');
+
+// Default command (backward compatible)
+program
   .option('-l, --limit <number>', 'Number of posts per feed', '25')
   .option('-s, --sort <type>', 'Feed to scrape: hot, top, or both', 'both')
   .option('-o, --output <dir>', 'Output directory', './output')
@@ -52,6 +71,143 @@ program
 
       writeFileSync(filepath, report);
       console.log(`Report saved to: ${filepath}`);
+    } catch (error) {
+      console.error('Error:', error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
+  });
+
+// Episode subcommand group
+const episode = program.command('episode').description('Manage podcast episodes');
+
+// episode new
+episode
+  .command('new')
+  .description('Create a new episode from uncovered posts')
+  .option('-l, --limit <number>', 'Number of posts to include', '10')
+  .option('-t, --title <title>', 'Episode title')
+  .option('-v, --verbose', 'Show progress output')
+  .action(async (options) => {
+    try {
+      const result = await createEpisode({
+        projectRoot: getProjectRoot(),
+        limit: parseInt(options.limit, 10),
+        title: options.title,
+        verbose: options.verbose,
+      });
+
+      const episodeNum = formatEpisodeNumber(result.episodeNumber);
+      console.log(`Episode ${episodeNum} created: ${result.title}`);
+      console.log(`Posts included: ${result.postIds.length}`);
+      console.log(`\nUpload contents of episodes/${episodeNum}/notebooklm/ to NotebookLM.`);
+      console.log(`Run \`episode confirm ${result.episodeNumber}\` after adding audio.mp3 to mark posts as covered.`);
+    } catch (error) {
+      console.error('Error:', error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
+  });
+
+// episode confirm
+episode
+  .command('confirm <episode-number>')
+  .description('Mark episode posts as covered (requires audio.mp3)')
+  .option('-v, --verbose', 'Show progress output')
+  .action(async (episodeNumber, options) => {
+    try {
+      await confirmEpisode({
+        projectRoot: getProjectRoot(),
+        episodeNumber: parseInt(episodeNumber, 10),
+        verbose: options.verbose,
+      });
+
+      console.log(`Episode ${episodeNumber} confirmed. Posts marked as covered.`);
+    } catch (error) {
+      console.error('Error:', error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
+  });
+
+// episode delete
+episode
+  .command('delete <episode-number>')
+  .description('Delete an episode')
+  .option('-f, --force', 'Remove posts from covered-posts.json')
+  .option('-v, --verbose', 'Show progress output')
+  .action(async (episodeNumber, options) => {
+    try {
+      await deleteEpisode({
+        projectRoot: getProjectRoot(),
+        episodeNumber: parseInt(episodeNumber, 10),
+        force: options.force,
+        verbose: options.verbose,
+      });
+
+      console.log(`Episode ${episodeNumber} deleted.`);
+    } catch (error) {
+      console.error('Error:', error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
+  });
+
+// episode transcribe
+episode
+  .command('transcribe <episode-number>')
+  .description('Transcribe episode audio with speaker diarization')
+  .option('--timeout <seconds>', 'Transcription timeout in seconds', '600')
+  .option('-v, --verbose', 'Show progress output')
+  .action(async (episodeNumber, options) => {
+    try {
+      const result = await transcribeEpisode({
+        projectRoot: getProjectRoot(),
+        episodeNumber: parseInt(episodeNumber, 10),
+        timeout: parseInt(options.timeout, 10),
+        verbose: options.verbose,
+      });
+
+      console.log(`Transcription complete for episode ${episodeNumber}. Found ${result.speakerCount} speakers.`);
+    } catch (error) {
+      console.error('Error:', error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
+  });
+
+// episode publish
+episode
+  .command('publish <episode-number>')
+  .description('Publish episode to docs/ for GH Pages')
+  .option('-v, --verbose', 'Show progress output')
+  .action(async (episodeNumber, options) => {
+    try {
+      await publishEpisode({
+        projectRoot: getProjectRoot(),
+        episodeNumber: parseInt(episodeNumber, 10),
+        verbose: options.verbose,
+      });
+
+      const episodeNum = formatEpisodeNumber(parseInt(episodeNumber, 10));
+      console.log(`Episode ${episodeNumber} published to docs/episodes/${episodeNum}/`);
+      console.log(`Run \`git add docs/ episodes/ && git commit && git push\` to deploy.`);
+    } catch (error) {
+      console.error('Error:', error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
+  });
+
+// episode status
+episode
+  .command('status [episode-number]')
+  .description('Show episode status')
+  .action(async (episodeNumber) => {
+    try {
+      const projectRoot = getProjectRoot();
+
+      if (episodeNumber) {
+        const status = getEpisodeStatus(projectRoot, parseInt(episodeNumber, 10));
+        console.log(formatStatusOutput([status]));
+      } else {
+        const statuses = getAllEpisodesStatus(projectRoot);
+        console.log(formatStatusOutput(statuses));
+      }
     } catch (error) {
       console.error('Error:', error instanceof Error ? error.message : error);
       process.exit(1);
