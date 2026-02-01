@@ -60,6 +60,10 @@ export const PostDetailResponseSchema = z.object({
   comments: z.array(CommentSchema),
 });
 
+// Flattened type combining post and comments for convenience
+export type PostDetail = Post & {
+  comments: Comment[];
+};
+
 export type Post = z.infer<typeof PostSchema>;
-export type PostDetail = z.infer<typeof PostDetailResponseSchema>;
 export type Author = z.infer<typeof AuthorSchema>;

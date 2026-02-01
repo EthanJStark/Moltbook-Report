@@ -9,9 +9,9 @@ const makePost = (id: string, title: string): Post => ({
   content: 'content',
   author: { name: 'agent', id: 'a1' },
   submolt: { name: 'general', id: 's1' },
-  score: 10,
-  commentCount: 0,
-  createdAt: '2025-01-31T12:00:00Z',
+  upvotes: 10,
+  comment_count: 0,
+  created_at: '2025-01-31T12:00:00Z',
   url: `/post/${id}`,
 });
 
@@ -34,29 +34,29 @@ describe('flattenComments', () => {
         id: 'c1',
         content: 'Level 1',
         author: { name: 'a1', id: '1' },
-        score: 5,
-        createdAt: '2025-01-31T12:00:00Z',
+        upvotes: 5,
+        created_at: '2025-01-31T12:00:00Z',
         replies: [
           {
             id: 'c2',
             content: 'Level 2',
             author: { name: 'a2', id: '2' },
-            score: 3,
-            createdAt: '2025-01-31T13:00:00Z',
+            upvotes: 3,
+            created_at: '2025-01-31T13:00:00Z',
             replies: [
               {
                 id: 'c3',
                 content: 'Level 3',
                 author: { name: 'a3', id: '3' },
-                score: 1,
-                createdAt: '2025-01-31T14:00:00Z',
+                upvotes: 1,
+                created_at: '2025-01-31T14:00:00Z',
                 replies: [
                   {
                     id: 'c4',
                     content: 'Level 4 - should be cut',
                     author: { name: 'a4', id: '4' },
-                    score: 0,
-                    createdAt: '2025-01-31T15:00:00Z',
+                    upvotes: 0,
+                    created_at: '2025-01-31T15:00:00Z',
                     replies: [],
                   },
                 ],

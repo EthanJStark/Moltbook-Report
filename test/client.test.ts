@@ -10,7 +10,7 @@ describe('MoltbookClient', () => {
 
   it('fetches posts successfully', async () => {
     const client = new MoltbookClient();
-    const mockResponse = { posts: [] };
+    const mockResponse = { success: true, posts: [] };
 
     const fetchSpy = vi.spyOn(global, 'fetch').mockImplementation(async () =>
       new Response(JSON.stringify(mockResponse), {
@@ -28,7 +28,7 @@ describe('MoltbookClient', () => {
 
   it('respects rate limit between sequential requests', async () => {
     const client = new MoltbookClient();
-    const mockResponse = { posts: [] };
+    const mockResponse = { success: true, posts: [] };
 
     const fetchSpy = vi.spyOn(global, 'fetch').mockImplementation(async () =>
       new Response(JSON.stringify(mockResponse), {

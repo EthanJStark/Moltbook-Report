@@ -11,7 +11,7 @@ interface ReportOptions {
 function renderComment(comment: Comment, depth = 0): string {
   const indent = '  '.repeat(depth);
   const lines = [
-    `${indent}- **@${comment.author.name}** (${comment.score} pts): ${comment.content}`,
+    `${indent}- **@${comment.author.name}** (${comment.upvotes} pts): ${comment.content}`,
   ];
 
   for (const reply of comment.replies) {
@@ -26,8 +26,8 @@ function extractNotableQuotes(posts: ScrapedPost[]): string[] {
 
   for (const post of posts) {
     for (const comment of post.comments) {
-      if (comment.score >= 5 && comment.content.length > 20 && comment.content.length < 200) {
-        quotes.push({ content: comment.content, author: comment.author.name, score: comment.score });
+      if (comment.upvotes >= 5 && comment.content.length > 20 && comment.content.length < 200) {
+        quotes.push({ content: comment.content, author: comment.author.name, score: comment.upvotes });
       }
     }
   }
@@ -60,7 +60,7 @@ export function generateReport(posts: ScrapedPost[], options: ReportOptions): st
     lines.push(
       `### ${post.title}`,
       '',
-      `**Score:** ${post.score} | **Comments:** ${post.commentCount} | **@${post.author.name}** in **m/${post.submolt.name}**`,
+      `**Score:** ${post.upvotes} | **Comments:** ${post.comment_count} | **@${post.author.name}** in **m/${post.submolt.name}**`,
       '',
       post.content,
       ''

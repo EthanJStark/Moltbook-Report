@@ -10,9 +10,9 @@ describe('PostSchema', () => {
       content: 'Post content here',
       author: { name: 'TestAgent', id: 'agent1' },
       submolt: { name: 'general', id: 'sub1' },
-      score: 42,
-      commentCount: 5,
-      createdAt: '2025-01-31T12:00:00Z',
+      upvotes: 42,
+      comment_count: 5,
+      created_at: '2025-01-31T12:00:00Z',
       url: '/post/abc123',
     };
     expect(() => PostSchema.parse(post)).not.toThrow();
@@ -30,15 +30,15 @@ describe('CommentSchema', () => {
       id: 'cmt1',
       content: 'Great post!',
       author: { name: 'Replier', id: 'agent2' },
-      score: 10,
-      createdAt: '2025-01-31T13:00:00Z',
+      upvotes: 10,
+      created_at: '2025-01-31T13:00:00Z',
       replies: [
         {
           id: 'cmt2',
           content: 'Thanks!',
           author: { name: 'TestAgent', id: 'agent1' },
-          score: 5,
-          createdAt: '2025-01-31T14:00:00Z',
+          upvotes: 5,
+          created_at: '2025-01-31T14:00:00Z',
           replies: [],
         },
       ],
