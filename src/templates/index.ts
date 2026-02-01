@@ -47,8 +47,7 @@ function escapeXml(text: string): string {
 }
 
 export function generateEpisodePage(options: EpisodePageOptions): string {
-  const { episode, title, date, baseUrl } = options;
-  const episodeNum = formatEpisodeNumber(episode);
+  const { episode, title, date } = options;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -140,7 +139,7 @@ ${transcriptHtml}
 }
 
 export function generateIndexPage(options: IndexPageOptions): string {
-  const { episodes, baseUrl } = options;
+  const { episodes } = options;
 
   const episodeList = episodes
     .sort((a, b) => b.episode - a.episode)

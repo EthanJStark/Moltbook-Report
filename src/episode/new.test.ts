@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { mkdirSync, rmSync, writeFileSync, readFileSync, existsSync } from 'fs';
 import { join } from 'path';
-import { createEpisode, type CreateEpisodeOptions } from './new.js';
+import { createEpisode } from './new.js';
 
 const TEST_DIR = '/tmp/moltbook-test-new';
 

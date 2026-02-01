@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { mkdirSync, rmSync, writeFileSync, existsSync, readFileSync, statSync } from 'fs';
+import { mkdirSync, rmSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import { transcribeEpisode, checkTranscribePrerequisites } from './transcribe.js';
+import { checkTranscribePrerequisites } from './transcribe.js';
 
 const TEST_DIR = '/tmp/moltbook-test-transcribe';
 

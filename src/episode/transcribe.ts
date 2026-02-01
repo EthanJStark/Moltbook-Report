@@ -2,7 +2,7 @@ import { existsSync, readFileSync, writeFileSync, renameSync, statSync } from 'f
 import { join, basename } from 'path';
 import { spawn } from 'child_process';
 import { parseMetadata } from './schema.js';
-import { getEpisodeDir, formatEpisodeNumber } from './utils.js';
+import { getEpisodeDir } from './utils.js';
 
 export interface TranscribeEpisodeOptions {
   projectRoot: string;

@@ -1,7 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync, copyFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import { format } from 'date-fns';
-import { scrapeDaily, type ScrapedPost } from '../scraper/daily.js';
+import { scrapeDaily } from '../scraper/daily.js';
 import { generateReport } from '../report/markdown.js';
 import { parseCoveredPosts, type EpisodeMetadata } from './schema.js';
 import {

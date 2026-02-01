@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdirSync, rmSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import { getEpisodeStatus, getAllEpisodesStatus, type EpisodeStatusInfo } from './status.js';
+import { getEpisodeStatus, getAllEpisodesStatus } from './status.js';
 
 const TEST_DIR = '/tmp/moltbook-test-status';
 

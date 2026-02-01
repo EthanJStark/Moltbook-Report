@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { program } from 'commander';
 import { writeFileSync, mkdirSync, existsSync } from 'fs';
-import { join, resolve } from 'path';
+import { join } from 'path';
 import { format } from 'date-fns';
 import { scrapeDaily } from './scraper/daily.js';
 import { generateReport } from './report/markdown.js';

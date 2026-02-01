@@ -2,12 +2,9 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdirSync, rmSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import {
-  getEpisodesDir,
-  getEpisodeDir,
   formatEpisodeNumber,
   getNextEpisodeNumber,
   deriveEpisodeStatus,
-  getDocsEpisodeDir,
 } from './utils.js';
 
 const TEST_DIR = '/tmp/moltbook-test-utils';
