@@ -1,6 +1,6 @@
 // src/scraper/daily.ts
 import { MoltbookClient } from '../api/client.js';
-import type { Post, PostDetail, Comment } from '../schema/moltbook.js';
+import type { Post, Comment } from '../schema/moltbook.js';
 
 export interface ScrapedPost extends Post {
   comments: Comment[];
