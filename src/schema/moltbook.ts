@@ -4,19 +4,25 @@ import { z } from 'zod';
 export const AuthorSchema = z.object({
   name: z.string(),
   id: z.string(),
+  karma: z.number().optional(),
+  follower_count: z.number().optional(),
 });
 
 export const SubmoltSchema = z.object({
   name: z.string(),
   id: z.string(),
+  display_name: z.string().optional(),
 });
 
 export const BaseCommentSchema = z.object({
   id: z.string(),
   content: z.string(),
   author: AuthorSchema,
-  score: z.number(),
-  createdAt: z.string(),
+  upvotes: z.number(),
+  downvotes: z.number().optional(),
+  created_at: z.string(),
+  parent_id: z.string().nullable().optional(),
+  author_id: z.string().optional(),
 });
 
 export type Comment = z.infer<typeof BaseCommentSchema> & {
@@ -33,18 +39,24 @@ export const PostSchema = z.object({
   content: z.string(),
   author: AuthorSchema,
   submolt: SubmoltSchema,
-  score: z.number(),
-  commentCount: z.number(),
-  createdAt: z.string(),
-  url: z.string(),
+  upvotes: z.number(),
+  downvotes: z.number().optional(),
+  comment_count: z.number(),
+  created_at: z.string(),
+  url: z.string().nullable(),
 });
 
 export const PostListResponseSchema = z.object({
+  success: z.boolean(),
   posts: z.array(PostSchema),
-  nextOffset: z.number().optional(),
+  next_offset: z.number().optional(),
+  has_more: z.boolean().optional(),
+  count: z.number().optional(),
 });
 
-export const PostDetailResponseSchema = PostSchema.extend({
+export const PostDetailResponseSchema = z.object({
+  success: z.boolean(),
+  post: PostSchema,
   comments: z.array(CommentSchema),
 });
 

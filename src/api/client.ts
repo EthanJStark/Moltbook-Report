@@ -57,11 +57,19 @@ export class MoltbookClient {
 
   async getPosts(sort: 'hot' | 'top', limit: number, offset = 0): Promise<{ posts: Post[]; nextOffset?: number }> {
     const url = `${BASE_URL}/posts?sort=${sort}&limit=${limit}&offset=${offset}`;
-    return this.fetchWithRetry(url, (data) => PostListResponseSchema.parse(data));
+    const response = await this.fetchWithRetry(url, (data) => PostListResponseSchema.parse(data));
+    return {
+      posts: response.posts,
+      nextOffset: response.next_offset
+    };
   }
 
   async getPostDetail(postId: string): Promise<PostDetail> {
     const url = `${BASE_URL}/posts/${postId}`;
-    return this.fetchWithRetry(url, (data) => PostDetailResponseSchema.parse(data));
+    const response = await this.fetchWithRetry(url, (data) => PostDetailResponseSchema.parse(data));
+    return {
+      ...response.post,
+      comments: response.comments
+    };
   }
 }
