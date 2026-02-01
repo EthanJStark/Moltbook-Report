@@ -5,6 +5,8 @@ import { join } from 'path';
 import { format } from 'date-fns';
 import { scrapeDaily } from './scraper/daily.js';
 import { generateReport } from './report/markdown.js';
+import { scrapeCommand } from './cli/scrape.js';
+import { MoltbookClient } from './api/client.js';
 import {
   createEpisode,
   confirmEpisode,
@@ -75,6 +77,27 @@ program
       console.error('Error:', error instanceof Error ? error.message : error);
       process.exit(1);
     }
+  });
+
+// Scrape command
+program
+  .command('scrape')
+  .description('Scrape posts from Moltbook and save to JSON file')
+  .option('--limit <number>', 'Number of posts to fetch', '250')
+  .option('--output <path>', 'Output file path', 'output/scraped-posts.json')
+  .option('-v, --verbose', 'Verbose output', false)
+  .action(async (options) => {
+    const client = new MoltbookClient();
+    const limit = parseInt(options.limit, 10);
+
+    await scrapeCommand({
+      client,
+      limit,
+      output: options.output,
+      verbose: options.verbose
+    });
+
+    console.log(`✓ Scraped ${limit} posts to ${options.output}`);
   });
 
 // Episode subcommand group
