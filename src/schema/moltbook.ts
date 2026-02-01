@@ -36,7 +36,7 @@ export const CommentSchema: z.ZodType<Comment> = BaseCommentSchema.extend({
 export const PostSchema = z.object({
   id: z.string(),
   title: z.string(),
-  content: z.string(),
+  content: z.string().nullable().transform(val => val ?? ''),
   author: AuthorSchema,
   submolt: SubmoltSchema,
   upvotes: z.number(),
